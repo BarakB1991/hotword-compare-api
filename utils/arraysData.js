@@ -1,7 +1,6 @@
 const softSkills = [
   'Adaptability',
   'Attention To Detail',
-  'Attention to Detail',
   'Communication',
   'Communicator',
   'Communicators',
