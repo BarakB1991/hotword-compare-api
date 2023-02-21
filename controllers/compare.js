@@ -3,6 +3,7 @@ const { NotFoundError } = require('../utils/errorHandler');
 
 const postSkillCompare = async (req, res, next) => {
   console.log(req.body);
+  console.log(req.body);
   const [text1 = resume, text2 = jobDescription] = req.body;
 
   try {
@@ -26,7 +27,6 @@ const postSkillCompare = async (req, res, next) => {
         if (countText1 || countText2) {
           resultsArray.push({
             [Object.values(skill)[0][0]]: {
-              // return first item in array of options as key
               resume: countText1,
               jobPost: countText2,
             },
