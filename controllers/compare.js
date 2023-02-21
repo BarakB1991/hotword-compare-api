@@ -2,6 +2,7 @@ const { softSkills, hardSkills } = require('../utils/arraysData');
 const { NotFoundError } = require('../utils/errorHandler');
 
 const postSkillCompare = async (req, res, next) => {
+  console.log(req.body);
   const [text1 = resume, text2 = jobDescription] = req.body;
 
   try {
@@ -10,41 +11,32 @@ const postSkillCompare = async (req, res, next) => {
 
     // Function to count the occurrence of a keyword in a text
     const countKeyword = (text, keyword) => {
+      const keys = Object.values(keyword)[0]; // access array of options for keyword
+      const values = keys.join('\\w*|');
       let count = 0;
-      const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+      const regex = new RegExp(`(${values})`, 'gi');
       count = (text.match(regex) || []).length;
       return count;
     };
 
-    // Loop through the soft skills array and compare it with the texts
-    softSkills.forEach((skill) => {
-      const lowerCaseSkill = skill.toLowerCase();
-      const countText1 = countKeyword(text1.toLowerCase(), lowerCaseSkill);
-      const countText2 = countKeyword(text2.toLowerCase(), lowerCaseSkill);
-      if (countText1 || countText2) {
-        resultSoftSkillsFound.push({
-          [skill]: {
-            resume: countText1,
-            jobPost: countText2,
-          },
-        });
-      }
-    });
+    const loopAndCompareSkillsWithText = (skillsArray, resultsArray) => {
+      skillsArray.forEach((skill) => {
+        const countText1 = countKeyword(text1.toLowerCase(), skill);
+        const countText2 = countKeyword(text2.toLowerCase(), skill);
+        if (countText1 || countText2) {
+          resultsArray.push({
+            [Object.values(skill)[0][0]]: {
+              resume: countText1,
+              jobPost: countText2,
+            },
+          });
+        }
+      });
+    };
 
-    // Loop through the hard skills array and compare it with the texts
-    hardSkills.forEach((skill) => {
-      const lowerCaseSkill = skill.toLowerCase();
-      const countText1 = countKeyword(text1.toLowerCase(), lowerCaseSkill);
-      const countText2 = countKeyword(text2.toLowerCase(), lowerCaseSkill);
-      if (countText1 || countText2) {
-        resultHardSkillsFound.push({
-          [skill]: {
-            resume: countText1,
-            jobPost: countText2,
-          },
-        });
-      }
-    });
+    // Loop through the soft and hard skills array and compare it with the texts
+    loopAndCompareSkillsWithText(softSkills, resultSoftSkillsFound);
+    loopAndCompareSkillsWithText(hardSkills, resultHardSkillsFound);
 
     // Send results to client
     if (resultHardSkillsFound.length > 0 || resultSoftSkillsFound.length > 0) {
